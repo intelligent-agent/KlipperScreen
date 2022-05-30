@@ -347,6 +347,14 @@ trough {
     margin: 0 .15em .15em 0;
 }
 
+.keyboard_pad {
+    border: .15em solid white;
+    border-radius: 0.7em;
+}
+
+.keyboard_pad label {
+}
+
 .printing-filename {
     font-size: 1.75em;
     font-weight: bold;
