@@ -382,6 +382,7 @@ class NetworkPanel(ScreenPanel):
         self.labels['network_psk'].set_text('')
         self.content.add(self.labels['add_network'])
         self._screen.show_keyboard()
+        self._screen.set_focused_entry(self.labels['network_psk'])
         self.labels['network_psk'].grab_focus_without_selecting()
         self.content.show_all()
         self.show_add = True

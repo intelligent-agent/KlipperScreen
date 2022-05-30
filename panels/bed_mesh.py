@@ -298,6 +298,7 @@ class BedMeshPanel(ScreenPanel):
         self.content.add(self.labels['create_profile'])
         self.content.show()
         self._screen.show_keyboard()
+        self._screen.set_focused_entry(self.labels['profile_name'])
         self.labels['profile_name'].grab_focus_without_selecting()
 
     def show_mesh(self, widget, profile):

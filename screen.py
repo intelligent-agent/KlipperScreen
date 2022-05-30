@@ -23,6 +23,7 @@ from ks_includes.KlippyRest import KlippyRest
 from ks_includes.files import KlippyFiles
 from ks_includes.KlippyGtk import KlippyGtk
 from ks_includes.printer import Printer
+from ks_includes.widgets.keyboard import Keyboard
 
 from ks_includes.config import KlipperScreenConfig
 from panels.base_panel import BasePanel
@@ -130,6 +131,7 @@ class KlipperScreen(Gtk.Window):
         self.keyboard_height = self.gtk.get_keyboard_height()
         self.init_style()
 
+        self.focused_entry = None
         self.base_panel = BasePanel(self, "Base Panel", False)
         self.add(self.base_panel.get())
         self.show_all()
@@ -1021,10 +1023,33 @@ class KlipperScreen(Gtk.Window):
         self.show_panel('job_status', "job_status", "Print Status", 2)
         self.base_panel.show_heaters(True)
 
+    def keyboard_set_text_cb(self, text):
+        print(text)
+        if self.focused_entry:
+            self.focused_entry.set_text(text)
+
+    def keyboard_close_cb(self, text):
+        print(text)
+        if self.focused_entry:
+            self.focused_entry.set_text(text)
+        self.remove_keyboard()
+
+    def set_focused_entry(self, entry):
+        self.focused_entry = entry
+
     def show_keyboard(self, widget=None):
         if self.keyboard is not None:
             return
 
+        if self.is_wayland:
+            action_bar_width = self.gtk.get_action_bar_width()
+            keyboard = Keyboard(self, self.keyboard_set_text_cb, self.keyboard_close_cb)
+            self.base_panel.get_content().pack_end(keyboard, True, 0, 0)
+            self.show_all()
+            self.keyboard = {
+                "box": keyboard
+            }
+            return
         env = os.environ.copy()
         usrkbd = "/home/pi/.matchbox/keyboard.xml"
         if os.path.isfile(usrkbd):
@@ -1064,8 +1089,10 @@ class KlipperScreen(Gtk.Window):
             return
 
         self.base_panel.get_content().remove(self.keyboard['box'])
-        os.kill(self.keyboard['process'].pid, signal.SIGTERM)
+        if "process" in self.keyboard:
+            os.kill(self.keyboard['process'].pid, signal.SIGTERM)
         self.keyboard = None
+        self.focused_entry = None
 
     def change_cursor(self, cursortype=None):
         if cursortype == "watch":
