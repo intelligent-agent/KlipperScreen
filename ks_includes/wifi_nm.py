@@ -293,10 +293,14 @@ class WifiManagerNM():
         for con in NetworkManager.Settings.ListConnections():
             settings = con.GetSettings()
             if "802-11-wireless" in settings and settings["802-11-wireless"]['ssid'] == "Recore":
-                old_val = settings["connection"]["autoconnect"]
-                if old_val != value:
+                if not "autoconnect" in settings["connection"]:
                     settings["connection"]["autoconnect"] = value
                     con.Update(settings)
+                else:
+                    old_val = settings["connection"]["autoconnect"]
+                    if old_val != value:
+                        settings["connection"]["autoconnect"] = value
+                        con.Update(settings)
 
     def rescan(self):
         try:
