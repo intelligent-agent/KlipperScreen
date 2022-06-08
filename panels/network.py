@@ -2,7 +2,6 @@ import gi
 import logging
 import netifaces
 import os
-from ks_includes.wifi import WifiManager
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GLib, Pango
@@ -23,9 +22,16 @@ class NetworkPanel(ScreenPanel):
         self.network_interfaces = netifaces.interfaces()
         self.wireless_interfaces = [int for int in self.network_interfaces if int.startswith('w')]
         self.wifi = None
+
+        self.use_network_manager = os.system('systemctl is-active --quiet NetworkManager.service') == 0
         if len(self.wireless_interfaces) > 0:
             logging.info("Found wireless interfaces: %s" % self.wireless_interfaces)
-            self.wifi = WifiManager(self.wireless_interfaces[0])
+            if self.use_network_manager:
+                from ks_includes.wifi_nm import WifiManagerNM
+                self.wifi = WifiManagerNM(self.wireless_interfaces[0])
+            else:
+                from ks_includes.wifi import WifiManager
+                self.wifi = WifiManager(self.wireless_interfaces[0])
 
         grid = self._gtk.HomogeneousGrid()
         grid.set_hexpand(True)
