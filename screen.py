@@ -1026,12 +1026,10 @@ class KlipperScreen(Gtk.Window):
         self.base_panel.show_heaters(True)
 
     def keyboard_set_text_cb(self, text):
-        print(text)
         if self.focused_entry:
             self.focused_entry.set_text(text)
 
     def keyboard_close_cb(self, text):
-        print(text)
         if self.focused_entry:
             self.focused_entry.set_text(text)
         self.remove_keyboard()
