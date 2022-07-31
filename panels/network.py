@@ -16,7 +16,7 @@ class NetworkPanel(ScreenPanel):
     initialized = False
 
     def initialize(self, menu):
-        _ = self.lang.gettext
+
         self.show_add = False
         self.networks = {}
         self.update_timeout = None
@@ -120,7 +120,6 @@ class NetworkPanel(ScreenPanel):
         self.content.show_all()
 
     def add_network(self, ssid, show=True):
-        _ = self.lang.gettext
 
         if ssid is None:
             logging.info("SSID is None")
@@ -276,7 +275,6 @@ class NetworkPanel(ScreenPanel):
         self.check_missing_networks()
 
     def connect_network(self, widget, ssid, showadd=True):
-        _ = self.lang.gettext
 
         snets = self.wifi.get_supplicant_networks()
         isdef = False
@@ -348,40 +346,36 @@ class NetworkPanel(ScreenPanel):
         if self.show_add:
             return
 
-        _ = self.lang.gettext
         for child in self.content.get_children():
             self.content.remove(child)
 
         if "add_network" in self.labels:
             del self.labels['add_network']
 
-        self.labels['add_network'] = Gtk.VBox()
-        self.labels['add_network'].set_valign(Gtk.Align.START)
-
-        box = Gtk.Box(spacing=5)
-        box.set_size_request(self._gtk.get_content_width(), self._gtk.get_content_height() -
-                             self._screen.keyboard_height - 20)
-        box.set_hexpand(True)
-        box.set_vexpand(False)
-        self.labels['add_network'].add(box)
-
         label = self._gtk.Label("%s %s:" % (_("PSK for"), ssid))
         label.set_hexpand(False)
-        entry = Gtk.Entry()
-        entry.set_hexpand(True)
-        entry.connect("activate", self.add_new_network, ssid, True)
+        self.labels['network_psk'] = Gtk.Entry()
+        self.labels['network_psk'].set_text('')
+        self.labels['network_psk'].set_hexpand(True)
+        self.labels['network_psk'].connect("activate", self.add_new_network, ssid, True)
+        self.labels['network_psk'].connect("focus-in-event", self._screen.show_keyboard)
+        self.labels['network_psk'].grab_focus_without_selecting()
 
         save = self._gtk.ButtonImage("sd", _("Save"), "color3")
         save.set_hexpand(False)
         save.connect("clicked", self.add_new_network, ssid, True)
 
-        self.labels['network_psk'] = entry
-        box.pack_start(label, False, False, 5)
-        box.pack_start(entry, True, True, 5)
+        box = Gtk.Box()
+        box.pack_start(self.labels['network_psk'], True, True, 5)
         box.pack_start(save, False, False, 5)
 
-        self.show_create = True
-        self.labels['network_psk'].set_text('')
+        self.labels['add_network'] = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        self.labels['add_network'].set_valign(Gtk.Align.CENTER)
+        self.labels['add_network'].set_hexpand(True)
+        self.labels['add_network'].set_vexpand(True)
+        self.labels['add_network'].pack_start(label, True, True, 5)
+        self.labels['add_network'].pack_start(box, True, True, 5)
+
         self.content.add(self.labels['add_network'])
         self._screen.show_keyboard()
         self._screen.set_focused_entry(self.labels['network_psk'])
@@ -395,7 +389,7 @@ class NetworkPanel(ScreenPanel):
         return True
 
     def update_network_info(self, ssid):
-        _ = self.lang.gettext
+
         info = freq = encr = chan = lvl = ipv4 = ipv6 = ""
 
         if ssid not in list(self.networks) or ssid not in self.labels['networks']:
@@ -435,7 +429,6 @@ class NetworkPanel(ScreenPanel):
         self.labels['networks'][ssid]['info'].show_all()
 
     def update_single_network_info(self):
-        _ = self.lang.gettext
 
         stream = os.popen('hostname -f')
         hostname = stream.read().strip()
