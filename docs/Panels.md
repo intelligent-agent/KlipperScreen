@@ -3,35 +3,29 @@
 ### Main Menu
 ![Main Menu](img/panels/main_panel.png)
 
-### Job Status
+### [Job Status](Job_status.md)
 ```py
 panel: job_status
 ```
 ![Job Status](img/panels/job_status.png)
 
-### Bed Level
+### [Bed Level](Screws.md)
 ```py
 panel: bed_level
 ```
 ![Bed Level](img/panels/bed_level.png)
-
-The bed level panel has the ability to have preset locations from Klipper. Please see documentation on the following
-Klipper Sections:
-* [bed_screws](https://www.klipper3d.org/Config_Reference.html#bed_screws)
-* [screws_tilt_adjust](https://www.klipper3d.org/Config_Reference.html#screws_tilt_adjust)
-
-_Important Note: Due to Klipper using the bltouch/probe offsets in screws_tilt_adjust, if a bltouch/probe is enabled_
-_KlipperScreen will add the offset to the defined screw values. This will not occur if bed_screws section is used._
-
-This panel will favor screws_tilt_adjust over the bed_screws section. If screws_tilt_adjust is defined, an extra button
-for _Screws Calibrate_ will appear. This button runs the SCREWS_TILT_CALCULATE command and shows the results on the
-panel.
 
 ### Bed Mesh
 ```py
 panel: bed_mesh
 ```
 ![Bed Mesh](img/panels/bed_mesh.png)
+
+### Console
+```py
+panel: console
+```
+![Console](img/panels/console.png)
 
 ### Extrude
 ```py
@@ -56,6 +50,18 @@ panel: fine_tune
 panel: gcode_macros
 ```
 ![Gcode Macros Panel](img/panels/gcode_macros.png)
+
+### Input Shapers
+```py
+panel: input_shaper
+```
+![Limits](img/panels/input_shaper.png)
+
+### Limits
+```py
+panel: limits
+```
+![Limits](img/panels/limits.png)
 
 ### Menu
 ![Menu Panel](img/panels/menu.png)
@@ -84,6 +90,12 @@ panel: print
 ```
 ![Print Panel](img/panels/print.png)
 
+### Retraction
+```py
+panel: retraction
+```
+![Limits](img/panels/retraction.png)
+
 ### Settings
 ```py
 panel: settings
@@ -96,32 +108,14 @@ panel: system
 ```
 ![System Panel](img/panels/system.png)
 
-### Temperature
+### [Temperature](Temperature.md)
 ```py
 panel: temperature
 ```
 ![Temperature](img/panels/temperature.png)
 
-### Z Calibrate
+### [Z Calibrate](Zcalibrate.md)
 ```py
 panel: zcalibrate
 ```
 ![Z Calibrate](img/panels/zcalibrate.png)
-
-### Limits
-```py
-panel: limits
-```
-![Limits](img/panels/limits.png)
-
-### Retraction
-```py
-panel: retraction
-```
-![Limits](img/panels/retraction.png)
-
-### Input Shapers
-```py
-panel: input_shaper
-```
-![Limits](img/panels/input_shaper.png)

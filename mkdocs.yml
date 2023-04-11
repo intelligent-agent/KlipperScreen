@@ -14,11 +14,18 @@ nav:
       - Quicktips.md
       - Macros: macros.md
       - Android.md
+      - Thumbnails.md
     - Troubleshooting.md
+    - Panels:
+      - Bed Level/Screws: Screws.md
+      - Job_status/Printing: Job_status.md
+      - Temperature: Temperature.md
+      - Z Calibrate: Zcalibrate.md
+    - Screenshots: Panels.md
     - Theming.md
     - Translations.md
     - Breaking Changes: Changelog.md
-    - Screenshots: Panels.md
+
     - Contact.md
 theme:
   name: material
@@ -26,8 +33,8 @@ theme:
   features:
     - content.code.annotate
     - content.tooltips
+    - navigation.expand
     - navigation.indexes
-    - navigation.sections
     - navigation.top
     - navigation.tracking
     - search.highlight

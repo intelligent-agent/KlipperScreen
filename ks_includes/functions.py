@@ -17,14 +17,12 @@ try:
     ctypes.cdll.LoadLibrary('libXext.so.6')
     libXext = ctypes.CDLL('libXext.so.6')
 
-
     class DPMS_State:
         Fail = -1
         On = 0
         Standby = 1
         Suspend = 2
         Off = 3
-
 
     def get_DPMS_state(display_name_in_byte_string=b':0'):
         state = DPMS_State.Fail
@@ -48,10 +46,9 @@ try:
             libXext.XCloseDisplay(display)
         return state
 
-
     dpms_loaded = True
-except Exception:
-    pass
+except Exception as msg:
+    logging.error(f"Couldn't load DPMS: {msg}")
 
 
 def get_network_interfaces():
@@ -78,7 +75,7 @@ def get_wireless_interfaces():
     for line in result:
         match = re.search('^(\\S+)\\s+.*$', line)
         if match:
-            interfaces.append(match.group(1))
+            interfaces.append(match[1])
 
     return interfaces
 
@@ -126,8 +123,8 @@ def patch_threading_excepthook():
     threading.Thread.__init__ = new_init
 
 
-# Timed rotating file handler based on Klipper and Moonraker's implementation
-class KlipperScreenLoggingHandler(logging.handlers.TimedRotatingFileHandler):
+# Rotating file handler based on Klipper and Moonraker's implementation
+class KlipperScreenLoggingHandler(logging.handlers.RotatingFileHandler):
     def __init__(self, software_version, filename, **kwargs):
         super(KlipperScreenLoggingHandler, self).__init__(filename, **kwargs)
         self.rollover_info = {
@@ -160,23 +157,28 @@ def setup_logging(log_file, software_version):
     stdout_fmt = logging.Formatter(
         '%(asctime)s [%(filename)s:%(funcName)s()] - %(message)s')
     stdout_hdlr.setFormatter(stdout_fmt)
-
-    fh = None
-    if log_file:
-        fh = KlipperScreenLoggingHandler(software_version, log_file, when='midnight', backupCount=2)
-        formatter = logging.Formatter(
-            '%(asctime)s [%(filename)s:%(funcName)s()] - %(message)s')
+    fh = listener = None
+    try:
+        fh = KlipperScreenLoggingHandler(software_version, log_file, maxBytes=4194304, backupCount=1)
+        formatter = logging.Formatter('%(asctime)s [%(filename)s:%(funcName)s()] - %(message)s')
         fh.setFormatter(formatter)
-        listener = logging.handlers.QueueListener(
-            queue, fh, stdout_hdlr)
-    else:
-        listener = logging.handlers.QueueListener(
-            queue, stdout_hdlr)
+        listener = logging.handlers.QueueListener(queue, fh, stdout_hdlr)
+    except Exception as e:
+        print(
+            f"Unable to create log file at '{os.path.normpath(log_file)}'.\n"
+            f"Make sure that the folder '{os.path.dirname(log_file)}' exists\n"
+            f"and KlipperScreen has Read/Write access to the folder.\n"
+            f"{e}\n"
+        )
+    if listener is None:
+        listener = logging.handlers.QueueListener(queue, stdout_hdlr)
     listener.start()
 
-    def logging_exception_handler(type, value, tb, thread_identifier=None):
+    def logging_exception_handler(ex_type, value, tb, thread_identifier=None):
         logging.exception(
-            "Uncaught exception %s: %s\nTraceback: %s" % (type, value, "\n".join(traceback.format_tb(tb))))
+            f'Uncaught exception {ex_type}: {value}\n'
+            + '\n'.join([str(x) for x in [*traceback.format_tb(tb)]])
+        )
 
     sys.excepthook = logging_exception_handler
     logging.captureWarnings(True)

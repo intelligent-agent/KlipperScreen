@@ -5,12 +5,22 @@ This page will have common problems and common solutions to those problems.
 
 The first step to troubleshooting any problem is getting the cause of the error.
 
-* Check for the file `/tmp/KlipperScreen.log`
+* Find KlipperScreen.log:
 
-look at the contents by running `cat /tmp/KlipperScreen.log` or grab the file over WinSCP or another sftp program.
-This is the most important file, and should be provided if you ask for support.
+!!! important
+    This log file should be provided if you ask for support.
 
-If that file is non-existent, run `journalctl -xe -u KlipperScreen`
+Depending on your setup the file could be accesible from the web interface alongside other logs
+
+Mainsail | Fluidd
+:-:|:-:
+![m_logs](img/troubleshooting/logs_mainsail.png) | ![f_logs](img/troubleshooting/logs_fluidd.png)
+
+if you can't find it in the web interface, use sftp to grab the log (for example Filezilla, WinSCP)
+Located at `~/printer_data/logs`or in `/tmp/` if the former doesn't exists.
+
+If KlipperScreen.log doesn't exist, run `systemctl status KlipperScreen`<br>
+(or `journalctl -xe -u KlipperScreen`)
 
 Check the file `/var/log/Xorg.0.log` where you can find issues with the X server.
 
@@ -33,11 +43,6 @@ usermod -a -G tty pi
 ```
 (if your username is not 'pi' change 'pi' to your username)
 
-You may also need:
-```sh
-sudo apt install xserver-xorg-legacy
-```
-
 Restart KlipperScreen:
 ```sh
 sudo service KlipperScreen restart
@@ -45,7 +50,7 @@ sudo service KlipperScreen restart
 
 If it's still failing as a last resort add `needs_root_rights=yes` to `/etc/X11/Xwrapper.config`:
 ```sh
-sudo echo needs_root_rights=yes>>/etc/X11/Xwrapper.config
+sudo bash -c "echo needs_root_rights=yes>>/etc/X11/Xwrapper.config"
 ```
 
 restart KS.
@@ -110,6 +115,63 @@ and reboot, that should make the touch work, if your screen is rotated 180 degre
 ## OctoPrint
 
 KlipperScreen was never intended to be used with OctoPrint, and there is no support for it.
+
+## WiFi networks not listed (Using wpa_supplicant as backend)
+
+This can be caused because of the user is not allowed to control the interface
+
+* Edit `/etc/wpa_supplicant/wpa_supplicant.conf` and add this line if it's not there:
+
+```
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+```
+
+* Run `cat /etc/group | grep netdev`
+
+If your username is not listed under that line, you need to add it with the following command:
+
+```sh
+usermod -a -G netdev pi
+```
+(if your username is not 'pi' change 'pi' to your username)
+
+Then reboot the machine:
+
+```sh
+systemctl reboot
+```
+
+!!! tip
+    It's possible to just restart KlipperScreen and networking
+
+## WiFi networks not listed (Using NetworkManager as backend)
+
+`[wifi_nm.py:rescan()] [...] NetworkManager.wifi.scan request failed: not authorized`
+
+
+If you see the above permission error in the log you may need to use polkit or disable it:
+
+```sh
+mkdir -p /etc/NetworkManager/conf.d
+sudo nano /etc/NetworkManager/conf.d/any-user.conf
+```
+
+in the editor paste this:
+
+```conf
+[main]
+auth-polkit=false
+```
+
+Then restart the service:
+
+```sh
+systemctl restart NetworkManager.service
+```
+
+!!! tip
+    It's possible to just restart KlipperScreen and NetworkManager
+
 
 ## Other issues
 

@@ -66,10 +66,6 @@ entry {
     border-color: #13181C;
 }
 
-frame {
-    border-bottom-color: #444;
-}
-
 label {
     color: white;
 }
@@ -167,10 +163,6 @@ textview .time {
     color: #f0f0f0;
 }
 
-.printing-progress-bar {
-    color: #00C9B4;
-}
-
 .printing-progress-text {
     color: white;
 }
@@ -205,4 +197,8 @@ textview .time {
 
 .error {
     background-color: rgba(204, 30, 30, 0.7);
+}
+
+.keyboard_pad {
+    background-color: #13181C;
 }

@@ -1,7 +1,7 @@
 # Configuration
 
 Usually you don't need to create a configuration file, but if you need to change something that is not changeable in the UI
-create a blank file in `~/klipper_config/KlipperScreen.conf`, if the file already exist then just edit it.
+create a blank file in `~/printer_data/config/KlipperScreen.conf`, if the file already exist then just edit it.
 
 Write in the file only the options that need to be changed, and restart KlipperScreen.
 
@@ -13,13 +13,9 @@ Write in the file only the options that need to be changed, and restart KlipperS
 
 
 ## Main Options
+The options listed here are not changeable from within the ui.
 ```py
 [main]
-# Invert axis in move panel. Default is False. Change to true to invert
-invert_x: False
-invert_y: False
-invert_z: False
-
 # Time in seconds before the Job Status page closes itself after a successful job/print
 # 0 means disabled
 job_complete_timeout: 0
@@ -27,15 +23,8 @@ job_complete_timeout: 0
 # Time in seconds before the Job Status closes itself if an error is encountered
 job_error_timeout: 0
 
-# Specify the language
-#   The language can be specified here instead of using the system default language.
-language: en
-
 # Allows the cursor to be displayed on the screen
 show_cursor: False
-
-# Allows to define custom systemctl command for restart like xrdp
-service: KlipperScreen
 
 # If multiple printers are defined, this can be set the name of the one to show at startup.
 default_printer: Ender 3 Pro
@@ -44,6 +33,9 @@ default_printer: Ender 3 Pro
 # set this to False. See Menu section below.
 use_default_menu: True
 
+# Define one or more moonraker power devices that turn on/off with the screensaver (CSV list)
+screen_on_devices: example1, example2
+screen_off_devices:  example1, example2
 ```
 
 ## Printer Options
@@ -53,6 +45,7 @@ Multiple printers can be defined
 [printer Ender 3 Pro]
 # Define the moonraker host/port if different from 127.0.0.1 and 7125
 moonraker_host: 127.0.0.1
+# ports 443 and 7130 will use https/wss
 moonraker_port: 7125
 # Moonraker API key if this is not connecting from a trusted client IP
 moonraker_api_key: False
@@ -84,24 +77,37 @@ titlebar_name_type: None
 calibrate_x_position: 100
 calibrate_y_position: 100
 
-# Screen DPMS
-# By default DPMS is used to turn off the screen, this should prevent burn-in and save power.
-# However if you find that your screen doesn't turn off because it doesn't support it
-# Setting this to false will just turn the screen black.
-use_dpms: True
+# Bed Screws
+# define the screw positons required for odd number of screws in a comma separated list
+# possible values are: bl, br, bm, fl, fr, fm, lm, rm, center
+# they correspond to back-left, back-right, back-middle, front-left, front-right, front-middle, left-middle, right-middle
+screw_positions: ""
+
+# Rotation is useful if the screen is not directly in front of the machine.
+# Valid values are 0 90 180 270
+screw_rotation: 0
+
+# Define distances and speeds for the extrude panel. CSV list 2 to 4 integers
+extrude_distances: 5, 10, 15, 25
+extrude_speeds: 1, 2, 5, 25
+
+# Camera configuration
+camera_url: http://127.0.0.1/webcam/?action=stream
 ```
 
 ## Preheat Options
 ```py
 [preheat my_temp_setting]
-# Temperature for the heated bed
-bed: 40
-# Temperature for the tools
 extruder: 195
-# Temperature for generic heaters
-heater_generic: 40
-# Temperature controlled fans (temperature_fan in klipper config)
+extruder1: 60
+heater_bed: 40
+# Use the name
+chamber: 60
+# or the full name
+heater_generic chamber: 60
+# or for example apply the same temp to devices of the same type
 temperature_fan: 40
+heater_generic: 60
 # optional GCode to run when the option is selected
 gcode: MY_HEATSOAK_MACRO
 ```
@@ -112,14 +118,6 @@ for example:
 ```py
 [preheat cooldown]
 gcode: M107
-```
-
-## Bed Screws
-```py
-[bed_screws]
-# Rotation is useful if the screen is not directly in front of the machine.
-# Valid values are 0 90 180 270
-rotation: 0
 ```
 
 ## Menu
@@ -135,6 +133,8 @@ A menu item is configured as follows:
 name: Item Name
 icon: home
 # Optional Parameters
+# Icon style, defined as "button.mycolor4" (for example) in the theme css
+style: mycolor4
 # Panel from the panels listed below
 panel: preheat
 # Moonraker method to call when the item is selected
@@ -149,12 +149,27 @@ Available panels are listed here: [docs/panels.md](Panels.md)
 
 Certain variables are available for conditional testing of the enable statement:
 ```py
-printer.bltouch # Available if bltouch section defined in config
+printer.extruders.count # Number of extruders
+printer.temperature_devices.count # Number of temperature related devices that are not extruders
+printer.fans.count # Number of fans
+printer.power_devices.count # Number of power devices configured in Moonraker
 printer.gcode_macros.count # Number of gcode macros
+printer.output_pins.count # Number of fans
+
+printer.bltouch # Available if bltouch section defined in config
+printer.probe # Available if probe section defined in config
+printer.bed_mesh # Available if bed_mesh section defined in config
+printer.quad_gantry_level # Available if quad_gantry_level section defined in config
+printer.z_tilt # Available if z_tilt section defined in config
+
+printer.firmware_retraction # True if defined in config
+printer.input_shaper # True if defined in config
+printer.bed_screws # True if defined in config
+printer.screws_tilt_adjust # True if defined in config
+
 printer.idle_timeout # Idle timeout section
 printer.pause_resume # Pause resume section of Klipper
-printer.probe # Available if probe section defined in config
-printer.power_devices.count # Number of power devices configured in Moonraker
+
 ```
 
 
@@ -187,7 +202,8 @@ KlipperScreen will search for a configuration file in the following order:
 
 1. _~/KlipperScreen.conf_
 2. _${KlipperScreen_Directory}/KlipperScreen.conf_
-3. _~/klipper_config/KlipperScreen.conf_
+3. _~/printer_data/config/KlipperScreen.conf_
+4. _~/klipper_config/KlipperScreen.conf_
 
 If you need a custom location for the configuration file, you can add -c or --configfile to the systemd file and specify
 the location of your configuration file.

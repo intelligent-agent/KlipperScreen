@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: KlipperScreen\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-02 13:43-0300\n"
+"POT-Creation-Date: 2022-11-30 18:17-0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: SRBJ\n"
 "Language-Team: \n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.2.1\n"
 
 #, python-format
 msgid "%s will be updated to version"
@@ -41,11 +41,8 @@ msgstr "OK"
 msgid "Actions"
 msgstr "Muligheder"
 
-msgid "Add Printer"
-msgstr "Tilføj printer"
-
-msgid "Add bed mesh profile"
-msgstr "Tilføj \"bed-mesh\" profil"
+msgid "Add profile"
+msgstr ""
 
 msgid "Apply"
 msgstr ""
@@ -56,6 +53,9 @@ msgstr ""
 
 #, python-format
 msgid "Apply %s%.2f offset to Probe?"
+msgstr ""
+
+msgid "Are you sure do you want to exclude the object?"
 msgstr ""
 
 msgid "Are you sure you want to run Emergency Stop?"
@@ -79,6 +79,9 @@ msgstr "Auto"
 msgid "Auto-calibrate"
 msgstr "Automatisk kalibrering"
 
+msgid "Auto-close notifications"
+msgstr ""
+
 msgid "Auto-scroll"
 msgstr "Auto-scroll"
 
@@ -88,8 +91,8 @@ msgstr "Bed-Level"
 msgid "Bed Mesh"
 msgstr "Bed-mesh"
 
-msgid "Bltouch found applied offset"
-msgstr "Bltouch fundet anvendt offset"
+msgid "Bed screw configuration:"
+msgstr ""
 
 msgid "Calibrate"
 msgstr "Kalibrér"
@@ -100,8 +103,8 @@ msgstr "Kalibreret"
 msgid "Calibrated, save configuration to make it permanent"
 msgstr "Kalibreret, gem konfiguration for at gøre den permanent"
 
-msgid "Calibrating..."
-msgstr "Kalibrerer..."
+msgid "Calibrating"
+msgstr "Kalibrerer"
 
 msgid "Can't set above the maximum:"
 msgstr "Kan ikke indstilles over maksimum:"
@@ -124,14 +127,10 @@ msgstr "Kan ikke oprette forbindelse til Moonraker"
 msgid "Channel"
 msgstr "Kanal"
 
-msgid ""
-"Check /tmp/KlipperScreen.log for more information.\n"
-"Please submit an issue on GitHub for help."
-msgstr ""
-"Tjek /tmp/KlipperScreen.log for mere information.\n"
-"Indsend venligst et \"Issue\" på GitHub for hjælp."
-
 msgid "Check ADXL Wiring"
+msgstr ""
+
+msgid "Checking for updates, please wait..."
 msgstr ""
 
 msgid "Clear"
@@ -171,8 +170,8 @@ msgstr "Dato"
 msgid "Decrease"
 msgstr "Formindsk"
 
-msgid "Delete"
-msgstr "Slet"
+msgid "Delete File?"
+msgstr ""
 
 msgid "Deselect"
 msgstr "Fravælg"
@@ -198,6 +197,12 @@ msgstr "Fejl"
 
 msgid "Estimated Time Method"
 msgstr "Metode til beregning af tid"
+
+msgid "Exclude Object"
+msgstr ""
+
+msgid "Extra Large"
+msgstr ""
 
 msgid "Extrude"
 msgstr "Ekstrudér"
@@ -241,12 +246,8 @@ msgstr "Finjustering"
 msgid "Finish"
 msgstr "Færdig"
 
-msgid ""
-"Firmware\n"
-"Restart"
-msgstr ""
-"Firmware\n"
-"Genstart"
+msgid "Firmware Restart"
+msgstr "Firmware Genstart"
 
 msgid "Flow:"
 msgstr ""
@@ -257,12 +258,8 @@ msgstr ""
 msgid "Font Size"
 msgstr "Skriftstørrelse"
 
-msgid ""
-"Full\n"
-"Update"
-msgstr ""
-"Fuld\n"
-"Opdatering"
+msgid "Full Update"
+msgstr "Fuld Opdatering"
 
 msgid "Go Back"
 msgstr "Gå tilbage"
@@ -282,9 +279,6 @@ msgstr "Skjul sensorer i Temp."
 msgid "Hide temp."
 msgstr ""
 
-msgid "Home"
-msgstr "Home"
-
 msgid "Home All"
 msgstr "Home alle"
 
@@ -303,6 +297,9 @@ msgstr "Home Z"
 msgid "Homing"
 msgstr "Homing"
 
+msgid "Host"
+msgstr ""
+
 msgid "Hostname"
 msgstr "Værtsnavn"
 
@@ -311,9 +308,6 @@ msgstr "Ikon-tema"
 
 msgid "Increase"
 msgstr "Forøg"
-
-msgid "Initializing"
-msgstr "Initialiserer"
 
 msgid "Initializing printer..."
 msgstr "Initialiserer printer..."
@@ -327,6 +321,9 @@ msgstr "Interface"
 msgid "Invalid"
 msgstr "Ugyldig"
 
+msgid "Invalid password"
+msgstr ""
+
 msgid "Invert X"
 msgstr "Invertér X"
 
@@ -336,12 +333,8 @@ msgstr "Invertér Y"
 msgid "Invert Z"
 msgstr "Invertér Z"
 
-msgid ""
-"Klipper\n"
-"Restart"
-msgstr ""
-"Klipper\n"
-"Genstart"
+msgid "Klipper Restart"
+msgstr "Klipper Genstart"
 
 msgid "Klipper has disconnected"
 msgstr "Klipper er frokoblet"
@@ -357,6 +350,9 @@ msgstr "Klipper forsøger at starte"
 
 msgid "Klipper will reboot"
 msgstr "Klipper vil genstarte"
+
+msgid "KlipperScreen will reboot"
+msgstr "KlipperScreen vil genstarte"
 
 msgid "Language"
 msgstr "Sprog"
@@ -400,6 +396,9 @@ msgstr "Maks. acceleration til decceleration"
 msgid "Max Velocity"
 msgstr "Maks. hastighed"
 
+msgid "Maximum"
+msgstr ""
+
 msgid "Measure Both"
 msgstr ""
 
@@ -414,6 +413,9 @@ msgstr "Mellem"
 
 msgid "Menu"
 msgstr "Menu"
+
+msgid "Mesh calibrate"
+msgstr ""
 
 msgid "Modified"
 msgstr "Ændret"
@@ -433,14 +435,19 @@ msgstr "Navn"
 msgid "Network"
 msgstr "Netværk"
 
+msgid "Never"
+msgstr ""
+
 msgid "New"
 msgstr "Ny"
 
+msgid ""
+"Not supported for auto-detection, it needs to be configured in klipperscreen."
+"conf"
+msgstr ""
+
 msgid "Nothing selected"
 msgstr "Intet valgt"
-
-msgid "Off"
-msgstr "Sluk"
 
 #, python-format
 msgid "Outdated by %d"
@@ -454,6 +461,9 @@ msgid_plural "Packages will be updated"
 msgstr[0] "Pakken vil blive opdateret"
 msgstr[1] "Pakker vil blive opdateret"
 
+msgid "Part Fan"
+msgstr ""
+
 msgid "Password saved"
 msgstr "Adgangskode gemt"
 
@@ -465,6 +475,9 @@ msgstr "På pause"
 
 msgid "Perform a full upgrade?"
 msgstr "Vil du udføre en fuld opgradering?"
+
+msgid "Pins"
+msgstr ""
 
 msgid "Please recompile and flash the micro-controller."
 msgstr "Genkompilér og flash mikrocontrolleren."
@@ -487,8 +500,14 @@ msgstr "Print styring"
 msgid "Print Time"
 msgstr "Printtid"
 
+msgid "Printer"
+msgstr ""
+
 msgid "Printer Connections"
 msgstr "Printer forbindelser"
+
+msgid "Printer Select"
+msgstr ""
 
 msgid "Printing"
 msgstr "Printer"
@@ -496,17 +515,20 @@ msgstr "Printer"
 msgid "Probe Offset"
 msgstr ""
 
-msgid "Probe found applied offset"
-msgstr "Probe fundet anvendt offset"
-
 msgid "Profile Name:"
 msgstr "Profilnavn:"
+
+msgid "Provide KlipperScreen.log when asking for help.\n"
+msgstr ""
 
 msgid "Quad Gantry Level"
 msgstr "Justering af 4-søjlers konstruktion"
 
 msgid "Raise Nozzle"
 msgstr "Hæv Nozzle"
+
+msgid "Recover"
+msgstr "Nulstil"
 
 msgid "Recover Hard"
 msgstr "Nulstil alt"
@@ -516,6 +538,9 @@ msgstr "Nulstil"
 
 msgid "Reference"
 msgstr "Reference"
+
+msgid "Refresh"
+msgstr ""
 
 msgid "Restart"
 msgstr "Genstart"
@@ -535,9 +560,11 @@ msgstr ""
 msgid "Retraction Speed"
 msgstr ""
 
-#, python-format
-msgid "Retry #%s"
-msgstr "Prøv igen #%s"
+msgid "Retry"
+msgstr ""
+
+msgid "Retrying"
+msgstr ""
 
 msgid "Save"
 msgstr "Gem"
@@ -549,7 +576,7 @@ msgid "Save Z"
 msgstr "Gem Z"
 
 msgid "Save configuration?"
-msgstr "Gem Konfiguration"
+msgstr "Gem Konfiguration?"
 
 msgid "Saved"
 msgstr "Gemt"
@@ -586,6 +613,12 @@ msgstr "Indstillinger"
 msgid "Show"
 msgstr "At vise"
 
+msgid "Show Heater Power"
+msgstr ""
+
+msgid "Shutdown"
+msgstr ""
+
 msgid "Size"
 msgstr "Størrelse"
 
@@ -601,12 +634,6 @@ msgstr ""
 msgid "Small"
 msgstr "Lille"
 
-msgid "Sort by: "
-msgstr "Sortér efter: "
-
-msgid "Sort:"
-msgstr "Sortere: "
-
 msgid "Speed (mm/s)"
 msgstr "Hastighed (mm/s)"
 
@@ -617,7 +644,7 @@ msgid "Speed -"
 msgstr "Hastighed -"
 
 msgid "Speed:"
-msgstr "Hastighed"
+msgstr "Hastighed:"
 
 msgid "Square Corner Velocity"
 msgstr "Hastighed for 90° hjørne"
@@ -637,19 +664,11 @@ msgstr "Opdaterer"
 msgid "System"
 msgstr "System"
 
-msgid ""
-"System\n"
-"Restart"
-msgstr ""
-"Genstart\n"
-"system"
+msgid "System Restart"
+msgstr "Genstart system"
 
-msgid ""
-"System\n"
-"Shutdown"
-msgstr ""
-"Luk\n"
-"system ned"
+msgid "System Shutdown"
+msgstr "Luk system ned"
 
 msgid "Temp (°C)"
 msgstr "Temp (°C)"
@@ -657,15 +676,14 @@ msgstr "Temp (°C)"
 msgid "Temperature"
 msgstr "Temperatur"
 
-#, python-format
-msgid "To apply %s KlipperScreen needs to be restarted"
-msgstr "KlipperScreen skal genstartes for at anvende %s"
-
 msgid "Total:"
 msgstr "Total:"
 
 msgid "Unknown Heater"
 msgstr "Ukendt varmelegeme"
+
+msgid "Unknown screw position"
+msgstr ""
 
 msgid "Unload"
 msgstr "Tilbagetræk"
@@ -688,26 +706,11 @@ msgstr "Opdatering"
 msgid "Uploaded"
 msgstr "Uploadet"
 
-msgid "View Mesh"
-msgstr "Vis mesh"
-
-msgid "X+"
-msgstr "X+"
-
-msgid "X-"
-msgstr "X-"
-
 msgid "XY Move Speed (mm/s)"
 msgstr "XY Flyt hastighed (mm/s)"
 
 msgid "XY Speed (mm/s)"
 msgstr "XY Hastighed (mm/s)"
-
-msgid "Y+"
-msgstr "Y+"
-
-msgid "Y-"
-msgstr "Y-"
 
 msgid "Z Calibrate"
 msgstr "Kalibrér Z"
@@ -723,12 +726,6 @@ msgstr "Z-tilt"
 
 msgid "Z offset:"
 msgstr ""
-
-msgid "Z+"
-msgstr "Z+"
-
-msgid "Z-"
-msgstr "Z-"
 
 msgid "commit"
 msgid_plural "commits"
@@ -755,6 +752,71 @@ msgstr "mm/s"
 msgid "mm/s²"
 msgstr "mm/s²"
 
+msgid "mm³/s"
+msgstr ""
+
+#~ msgid "Sort:"
+#~ msgstr "Sortere: "
+
+#~ msgid "Calibrating..."
+#~ msgstr "Kalibrerer..."
+
+#~ msgid "Z+"
+#~ msgstr "Z+"
+
+#~ msgid "Z-"
+#~ msgstr "Z-"
+
+#~ msgid "X+"
+#~ msgstr "X+"
+
+#~ msgid "X-"
+#~ msgstr "X-"
+
+#~ msgid "Y+"
+#~ msgstr "Y+"
+
+#~ msgid "Y-"
+#~ msgstr "Y-"
+
+#, python-format
+#~ msgid "Retry #%s"
+#~ msgstr "Prøv igen #%s"
+
+#~ msgid "Add Printer"
+#~ msgstr "Tilføj printer"
+
+#~ msgid "Initializing"
+#~ msgstr "Initialiserer"
+
+#~ msgid "Delete"
+#~ msgstr "Slet"
+
+#~ msgid "Home"
+#~ msgstr "Home"
+
+#~ msgid "Off"
+#~ msgstr "Sluk"
+
+#~ msgid "View Mesh"
+#~ msgstr "Vis mesh"
+
+#~ msgid "Sort by: "
+#~ msgstr "Sortér efter: "
+
+#~ msgid "Bltouch found applied offset"
+#~ msgstr "Bltouch fundet anvendt offset"
+
+#~ msgid ""
+#~ "Check /tmp/KlipperScreen.log for more information.\n"
+#~ "Please submit an issue on GitHub for help."
+#~ msgstr ""
+#~ "Tjek /tmp/KlipperScreen.log for mere information.\n"
+#~ "Indsend venligst et \"Issue\" på GitHub for hjælp."
+
+#~ msgid "Probe found applied offset"
+#~ msgstr "Probe fundet anvendt offset"
+
 #~ msgid "Tool"
 #~ msgstr "Ekstruder"
 
@@ -769,9 +831,6 @@ msgstr "mm/s²"
 
 #~ msgid "IPv6"
 #~ msgstr "IPv6"
-
-#~ msgid "Unknown Heater "
-#~ msgstr "Ukendt varmelegeme "
 
 #~ msgid "Disconnect"
 #~ msgstr "Afbryd forbindelse"

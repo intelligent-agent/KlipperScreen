@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-02 13:43-0300\n"
+"POT-Creation-Date: 2022-11-30 18:17-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,10 +46,7 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-msgid "Add Printer"
-msgstr ""
-
-msgid "Add bed mesh profile"
+msgid "Add profile"
 msgstr ""
 
 msgid "Apply"
@@ -61,6 +58,9 @@ msgstr ""
 
 #, python-format
 msgid "Apply %s%.2f offset to Probe?"
+msgstr ""
+
+msgid "Are you sure do you want to exclude the object?"
 msgstr ""
 
 msgid "Are you sure you want to run Emergency Stop?"
@@ -84,6 +84,9 @@ msgstr ""
 msgid "Auto-calibrate"
 msgstr ""
 
+msgid "Auto-close notifications"
+msgstr ""
+
 msgid "Auto-scroll"
 msgstr ""
 
@@ -93,7 +96,7 @@ msgstr ""
 msgid "Bed Mesh"
 msgstr ""
 
-msgid "Bltouch found applied offset"
+msgid "Bed screw configuration:"
 msgstr ""
 
 msgid "Calibrate"
@@ -105,7 +108,7 @@ msgstr ""
 msgid "Calibrated, save configuration to make it permanent"
 msgstr ""
 
-msgid "Calibrating..."
+msgid "Calibrating"
 msgstr ""
 
 msgid "Can't set above the maximum:"
@@ -129,12 +132,10 @@ msgstr ""
 msgid "Channel"
 msgstr ""
 
-msgid ""
-"Check /tmp/KlipperScreen.log for more information.\n"
-"Please submit an issue on GitHub for help."
+msgid "Check ADXL Wiring"
 msgstr ""
 
-msgid "Check ADXL Wiring"
+msgid "Checking for updates, please wait..."
 msgstr ""
 
 msgid "Clear"
@@ -174,7 +175,7 @@ msgstr ""
 msgid "Decrease"
 msgstr ""
 
-msgid "Delete"
+msgid "Delete File?"
 msgstr ""
 
 msgid "Deselect"
@@ -200,6 +201,12 @@ msgid "Error"
 msgstr ""
 
 msgid "Estimated Time Method"
+msgstr ""
+
+msgid "Exclude Object"
+msgstr ""
+
+msgid "Extra Large"
 msgstr ""
 
 msgid "Extrude"
@@ -244,9 +251,7 @@ msgstr ""
 msgid "Finish"
 msgstr ""
 
-msgid ""
-"Firmware\n"
-"Restart"
+msgid "Firmware Restart"
 msgstr ""
 
 msgid "Flow:"
@@ -258,9 +263,7 @@ msgstr ""
 msgid "Font Size"
 msgstr ""
 
-msgid ""
-"Full\n"
-"Update"
+msgid "Full Update"
 msgstr ""
 
 msgid "Go Back"
@@ -281,9 +284,6 @@ msgstr ""
 msgid "Hide temp."
 msgstr ""
 
-msgid "Home"
-msgstr ""
-
 msgid "Home All"
 msgstr ""
 
@@ -302,6 +302,9 @@ msgstr ""
 msgid "Homing"
 msgstr ""
 
+msgid "Host"
+msgstr ""
+
 msgid "Hostname"
 msgstr ""
 
@@ -309,9 +312,6 @@ msgid "Icon Theme"
 msgstr ""
 
 msgid "Increase"
-msgstr ""
-
-msgid "Initializing"
 msgstr ""
 
 msgid "Initializing printer..."
@@ -326,6 +326,9 @@ msgstr ""
 msgid "Invalid"
 msgstr ""
 
+msgid "Invalid password"
+msgstr ""
+
 msgid "Invert X"
 msgstr ""
 
@@ -335,9 +338,7 @@ msgstr ""
 msgid "Invert Z"
 msgstr ""
 
-msgid ""
-"Klipper\n"
-"Restart"
+msgid "Klipper Restart"
 msgstr ""
 
 msgid "Klipper has disconnected"
@@ -353,6 +354,9 @@ msgid "Klipper is attempting to start"
 msgstr ""
 
 msgid "Klipper will reboot"
+msgstr ""
+
+msgid "KlipperScreen will reboot"
 msgstr ""
 
 msgid "Language"
@@ -397,6 +401,9 @@ msgstr ""
 msgid "Max Velocity"
 msgstr ""
 
+msgid "Maximum"
+msgstr ""
+
 msgid "Measure Both"
 msgstr ""
 
@@ -410,6 +417,9 @@ msgid "Medium"
 msgstr ""
 
 msgid "Menu"
+msgstr ""
+
+msgid "Mesh calibrate"
 msgstr ""
 
 msgid "Modified"
@@ -430,13 +440,18 @@ msgstr ""
 msgid "Network"
 msgstr ""
 
+msgid "Never"
+msgstr ""
+
 msgid "New"
 msgstr ""
 
-msgid "Nothing selected"
+msgid ""
+"Not supported for auto-detection, it needs to be configured in klipperscreen."
+"conf"
 msgstr ""
 
-msgid "Off"
+msgid "Nothing selected"
 msgstr ""
 
 #, python-format
@@ -451,6 +466,9 @@ msgid_plural "Packages will be updated"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "Part Fan"
+msgstr ""
+
 msgid "Password saved"
 msgstr ""
 
@@ -461,6 +479,9 @@ msgid "Paused"
 msgstr ""
 
 msgid "Perform a full upgrade?"
+msgstr ""
+
+msgid "Pins"
 msgstr ""
 
 msgid "Please recompile and flash the micro-controller."
@@ -484,7 +505,13 @@ msgstr ""
 msgid "Print Time"
 msgstr ""
 
+msgid "Printer"
+msgstr ""
+
 msgid "Printer Connections"
+msgstr ""
+
+msgid "Printer Select"
 msgstr ""
 
 msgid "Printing"
@@ -493,16 +520,19 @@ msgstr ""
 msgid "Probe Offset"
 msgstr ""
 
-msgid "Probe found applied offset"
+msgid "Profile Name:"
 msgstr ""
 
-msgid "Profile Name:"
+msgid "Provide KlipperScreen.log when asking for help.\n"
 msgstr ""
 
 msgid "Quad Gantry Level"
 msgstr ""
 
 msgid "Raise Nozzle"
+msgstr ""
+
+msgid "Recover"
 msgstr ""
 
 msgid "Recover Hard"
@@ -512,6 +542,9 @@ msgid "Recover Soft"
 msgstr ""
 
 msgid "Reference"
+msgstr ""
+
+msgid "Refresh"
 msgstr ""
 
 msgid "Restart"
@@ -532,8 +565,10 @@ msgstr ""
 msgid "Retraction Speed"
 msgstr ""
 
-#, python-format
-msgid "Retry #%s"
+msgid "Retry"
+msgstr ""
+
+msgid "Retrying"
 msgstr ""
 
 msgid "Save"
@@ -583,6 +618,12 @@ msgstr ""
 msgid "Show"
 msgstr ""
 
+msgid "Show Heater Power"
+msgstr ""
+
+msgid "Shutdown"
+msgstr ""
+
 msgid "Size"
 msgstr ""
 
@@ -596,12 +637,6 @@ msgid "Slicer:"
 msgstr ""
 
 msgid "Small"
-msgstr ""
-
-msgid "Sort by: "
-msgstr ""
-
-msgid "Sort:"
 msgstr ""
 
 msgid "Speed (mm/s)"
@@ -634,14 +669,10 @@ msgstr ""
 msgid "System"
 msgstr ""
 
-msgid ""
-"System\n"
-"Restart"
+msgid "System Restart"
 msgstr ""
 
-msgid ""
-"System\n"
-"Shutdown"
+msgid "System Shutdown"
 msgstr ""
 
 msgid "Temp (°C)"
@@ -650,14 +681,13 @@ msgstr ""
 msgid "Temperature"
 msgstr ""
 
-#, python-format
-msgid "To apply %s KlipperScreen needs to be restarted"
-msgstr ""
-
 msgid "Total:"
 msgstr ""
 
 msgid "Unknown Heater"
+msgstr ""
+
+msgid "Unknown screw position"
 msgstr ""
 
 msgid "Unload"
@@ -681,25 +711,10 @@ msgstr ""
 msgid "Uploaded"
 msgstr ""
 
-msgid "View Mesh"
-msgstr ""
-
-msgid "X+"
-msgstr ""
-
-msgid "X-"
-msgstr ""
-
 msgid "XY Move Speed (mm/s)"
 msgstr ""
 
 msgid "XY Speed (mm/s)"
-msgstr ""
-
-msgid "Y+"
-msgstr ""
-
-msgid "Y-"
 msgstr ""
 
 msgid "Z Calibrate"
@@ -715,12 +730,6 @@ msgid "Z Tilt"
 msgstr ""
 
 msgid "Z offset:"
-msgstr ""
-
-msgid "Z+"
-msgstr ""
-
-msgid "Z-"
 msgstr ""
 
 msgid "commit"
@@ -746,4 +755,7 @@ msgid "mm/s"
 msgstr ""
 
 msgid "mm/s²"
+msgstr ""
+
+msgid "mm³/s"
 msgstr ""

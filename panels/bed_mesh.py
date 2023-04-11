@@ -1,19 +1,14 @@
-import gi
 import logging
-import numpy as np
+import contextlib
+
+import gi
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Pango
 
-import matplotlib.pyplot as plt
-from matplotlib import cm
-from matplotlib import rc
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
-from matplotlib.ticker import LinearLocator
-
 from ks_includes.KlippyGcodes import KlippyGcodes
 from ks_includes.screen_panel import ScreenPanel
+from ks_includes.widgets.bedmap import BedMap
 
 
 def create_panel(*args):
@@ -21,151 +16,142 @@ def create_panel(*args):
 
 
 class BedMeshPanel(ScreenPanel):
-    active_mesh = None
-    graphs = {}
 
-    def initialize(self, panel_name):
-
+    def __init__(self, screen, title):
+        super().__init__(screen, title)
         self.show_create = False
+        self.active_mesh = None
+        self.profiles = {}
+        self.buttons = {
+            'add': self._gtk.Button("increase", " " + _("Add profile"), "color1", self.bts, Gtk.PositionType.LEFT, 1),
+            'calib': self._gtk.Button("refresh", " " + _("Calibrate"), "color3", self.bts, Gtk.PositionType.LEFT, 1),
+            'clear': self._gtk.Button("cancel", " " + _("Clear"), "color2", self.bts, Gtk.PositionType.LEFT, 1),
+        }
+        self.buttons['add'].connect("clicked", self.show_create_profile)
+        self.buttons['add'].set_hexpand(True)
+        self.buttons['clear'].connect("clicked", self.send_clear_mesh)
+        self.buttons['clear'].set_hexpand(True)
+        self.buttons['calib'].connect("clicked", self.calibrate_mesh)
+        self.buttons['calib'].set_hexpand(True)
 
-        scroll = self._gtk.ScrolledWindow()
+        topbar = Gtk.Box(spacing=5)
+        topbar.set_hexpand(True)
+        topbar.set_vexpand(False)
+        topbar.add(self.buttons['add'])
+        topbar.add(self.buttons['clear'])
+        topbar.add(self.buttons['calib'])
 
         # Create a grid for all profiles
         self.labels['profiles'] = Gtk.Grid()
+        self.labels['profiles'].set_valign(Gtk.Align.CENTER)
+
+        scroll = self._gtk.ScrolledWindow()
         scroll.add(self.labels['profiles'])
-
-        addprofile = self._gtk.ButtonImage("increase", "  %s" % _("Add bed mesh profile"),
-                                           "color1", .5, Gtk.PositionType.LEFT, False)
-        addprofile.connect("clicked", self.show_create_profile)
-        addprofile.set_size_request(60, 0)
-        addprofile.set_hexpand(False)
-        addprofile.set_halign(Gtk.Align.END)
-        abox = Gtk.Box(spacing=0)
-        abox.set_vexpand(False)
-        abox.add(addprofile)
-
-        # Create a box to contain all of the above
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        box.set_vexpand(True)
-        box.pack_start(abox, False, False, 0)
-        box.pack_end(scroll, True, True, 0)
+        scroll.set_vexpand(True)
 
         self.load_meshes()
 
-        self.labels['main_box'] = box
-        self.content.add(self.labels['main_box'])
+        grid = self._gtk.HomogeneousGrid()
+        grid.set_row_homogeneous(False)
+        grid.attach(topbar, 0, 0, 2, 1)
+        self.labels['map'] = BedMap(self._gtk.font_size, self.active_mesh)
+        if self._screen.vertical_mode:
+            grid.attach(self.labels['map'], 0, 2, 2, 1)
+            grid.attach(scroll, 0, 3, 2, 1)
+            self.labels['map'].set_size_request(self._gtk.content_width, self._gtk.content_height * .4)
+        else:
+            grid.attach(self.labels['map'], 0, 2, 1, 1)
+            grid.attach(scroll, 1, 2, 1, 1)
+        self.labels['main_grid'] = grid
+        self.content.add(self.labels['main_grid'])
 
     def activate(self):
-        for child in self.content.get_children():
-            self.content.remove(child)
-        self.content.add(self.labels['main_box'])
-
-        am = self._screen.printer.get_stat("bed_mesh", "profile_name")
-        self.activate_mesh(am)
+        self.load_meshes()
+        with contextlib.suppress(KeyError):
+            self.activate_mesh(self._printer.get_stat("bed_mesh", "profile_name"))
 
     def activate_mesh(self, profile):
+        if self.active_mesh is not None:
+            self.profiles[self.active_mesh]['name'].set_sensitive(True)
+            self.profiles[self.active_mesh]['name'].get_style_context().remove_class("button_active")
         if profile == "":
-            profile = "default"
+            logging.info("Clearing active profile")
+            self.active_mesh = None
+            self.update_graph()
+            self.buttons['clear'].set_sensitive(False)
+            return
+        if profile not in self.profiles:
+            self.add_profile(profile)
 
-        logging.debug("Activating profile: %s %s" % (self.active_mesh, profile))
-        if profile != self.active_mesh:
-            if profile not in self.profiles:
-                self.add_profile(profile)
-            if self.active_mesh is not None and self.active_mesh in self.profiles:
-                a = self.profiles[self.active_mesh]
-                a['buttons'].remove(a['refresh'])
-                a['buttons'].pack_start(a['load'], False, False, 0)
-            self.active_mesh = profile
-            if self.active_mesh is not None:
-                a = self.profiles[profile]
-                a['buttons'].remove(a['load'])
-                a['buttons'].pack_start(a['refresh'], False, False, 0)
-            self._screen.show_all()
+        if self.active_mesh != profile:
+            logging.info(f"Active {self.active_mesh} changing to {profile}")
+        self.profiles[profile]['name'].set_sensitive(False)
+        self.profiles[profile]['name'].get_style_context().add_class("button_active")
+        self.active_mesh = profile
+        self.update_graph(profile=profile)
+        self.buttons['clear'].set_sensitive(True)
+
+    def retrieve_bm(self, profile):
+        if profile is None:
+            return None
+        if profile == self.active_mesh:
+            bm = self._printer.get_stat("bed_mesh")
+            if bm is None:
+                logging.info(f"Unable to load active mesh: {profile}")
+                return None
+            matrix = 'probed_matrix'
+        else:
+            bm = self._printer.get_config_section(f"bed_mesh {profile}")
+            if bm is False:
+                logging.info(f"Unable to load profile: {profile}")
+                self.remove_profile(profile)
+                return None
+            matrix = 'points'
+        return bm[matrix]
+
+    def update_graph(self, widget=None, profile=None):
+        self.labels['map'].update_bm(self.retrieve_bm(profile))
+        self.labels['map'].queue_draw()
 
     def add_profile(self, profile):
-
-        frame = Gtk.Frame()
-
-        name = Gtk.Label()
-        name.set_markup("<big><b>%s</b></big>" % profile)
-        name.set_hexpand(True)
-        name.set_vexpand(True)
+        logging.debug(f"Adding Profile: {profile}")
+        name = self._gtk.Button(label=f"<big><b>{profile}</b></big>")
+        name.get_children()[0].set_use_markup(True)
+        name.get_children()[0].set_line_wrap(True)
+        name.get_children()[0].set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
+        name.set_vexpand(False)
         name.set_halign(Gtk.Align.START)
-        name.set_line_wrap(True)
-        name.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
+        name.connect("clicked", self.send_load_mesh, profile)
+        name.connect("clicked", self.update_graph, profile)
 
-        load = self._gtk.ButtonImage("load", _("Load"), "color2")
-        load.connect("clicked", self.send_load_mesh, profile)
-        load.set_size_request(60, 0)
-        load.set_hexpand(False)
-        load.set_halign(Gtk.Align.END)
+        buttons = {
+            "save": self._gtk.Button("complete", None, "color4", self.bts),
+            "delete": self._gtk.Button("cancel", None, "color2", self.bts),
+        }
+        buttons["save"].connect("clicked", self.send_save_mesh, profile)
+        buttons["delete"].connect("clicked", self.send_remove_mesh, profile)
 
-        refresh = self._gtk.ButtonImage("refresh", _("Calibrate"), "color4")
-        refresh.connect("clicked", self.calibrate_mesh)
-        refresh.set_size_request(60, 0)
-        refresh.set_hexpand(False)
-        refresh.set_halign(Gtk.Align.END)
+        for b in buttons.values():
+            b.set_hexpand(False)
+            b.set_vexpand(False)
+            b.set_halign(Gtk.Align.END)
 
-        view = self._gtk.ButtonImage("bed-level", _("View Mesh"), "color1")
-        view.connect("clicked", self.show_mesh, profile)
-        view.set_size_request(60, 0)
-        view.set_hexpand(False)
-        view.set_halign(Gtk.Align.END)
-
-        info = self._gtk.ButtonImage("info", None, "color3")
-        info.connect("clicked", self.show_mesh, profile)
-        info.set_size_request(60, 0)
-        info.set_hexpand(False)
-        info.set_halign(Gtk.Align.END)
-
-        save = self._gtk.ButtonImage("sd", _("Save"), "color3")
-        save.connect("clicked", self.send_save_mesh, profile)
-        save.set_size_request(60, 0)
-        save.set_hexpand(False)
-        save.set_halign(Gtk.Align.END)
-
-        delete = self._gtk.ButtonImage("cancel", _("Delete"), "color3")
-        delete.connect("clicked", self.send_remove_mesh, profile)
-        delete.set_size_request(60, 0)
-        delete.set_hexpand(False)
-        delete.set_halign(Gtk.Align.END)
-
-        labels = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        labels.add(name)
-
-        dev = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-        dev.set_margin_top(10)
-        dev.set_margin_end(15)
-        dev.set_margin_start(15)
-        dev.set_margin_bottom(10)
-        dev.set_hexpand(True)
-        dev.set_vexpand(False)
-        dev.add(labels)
-
-        buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-        logging.debug("Profile compare: '%s' '%s'" % (self.active_mesh, profile))
-        if self.active_mesh == profile:
-            buttons.pack_start(refresh, False, False, 0)
-        else:
-            buttons.pack_start(load, False, False, 0)
-        # buttons.pack_end(info, False, False, 0)
-
+        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
         if profile != "default":
-            buttons.pack_end(save, False, False, 0)
-            buttons.pack_end(delete, False, False, 0)
-        buttons.pack_end(view, False, False, 0)
+            button_box.add(buttons["save"])
+        button_box.add(buttons["delete"])
 
-        dev.add(buttons)
-        frame.add(dev)
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        box.get_style_context().add_class("frame-item")
+        box.pack_start(name, True, True, 0)
+        box.pack_start(button_box, False, False, 0)
 
         self.profiles[profile] = {
-            "box": dev,
-            "buttons": buttons,
-            "row": frame,
-            "load": load,
-            "refresh": refresh,
-            "save": save,
-            "view": view,
+            "name": name,
+            "button_box": button_box,
+            "row": box,
+            "save": buttons["save"],
+            "delete": buttons["delete"],
         }
 
         pl = list(self.profiles)
@@ -184,36 +170,32 @@ class BedMeshPanel(ScreenPanel):
             return True
         return False
 
-    def create_profile(self, widget):
-        name = self.labels['profile_name'].get_text()
-        if " " in name:
-            name = '"%s"' % name
-
-        self._screen._ws.klippy.gcode_script("BED_MESH_PROFILE SAVE=%s" % name)
-        self.remove_create()
-
-    def calibrate_mesh(self, widget):
-        if self._screen.printer.get_stat("toolhead", "homed_axes") != "xyz":
-            self._screen._ws.klippy.gcode_script(KlippyGcodes.HOME)
-
-        self._screen._ws.klippy.gcode_script(
-            "BED_MESH_CALIBRATE"
-        )
-
-        if not (self._printer.config_section_exists("probe") or self._printer.config_section_exists("bltouch")):
-            self.menu_item_clicked(widget, "refresh", {"name": "Mesh calibrate", "panel": "zcalibrate"})
-
     def load_meshes(self):
-        bm_profiles = self._screen.printer.get_config_section_list("bed_mesh ")
-        self.profiles = {}
+        bm_profiles = self._printer.get_stat("bed_mesh", "profiles")
         for prof in bm_profiles:
-            self.add_profile(prof[9:])
+            if prof not in self.profiles:
+                self.add_profile(prof)
+        for prof in self.profiles:
+            if prof not in bm_profiles:
+                self.remove_profile(prof)
+
+    def process_busy(self, busy):
+        for button in self.buttons:
+            if button == 'clear':
+                self.buttons[button].set_sensitive(self.active_mesh is not None)
+                continue
+            self.buttons[button].set_sensitive((not busy))
+        for profile in self.profiles:
+            self.profiles[profile]["save"].set_sensitive((not busy))
+            self.profiles[profile]["delete"].set_sensitive((not busy))
 
     def process_update(self, action, data):
+        if action == "notify_busy":
+            self.process_busy(data)
+            return
         if action == "notify_status_update":
-            if "bed_mesh" in data and "profile_name" in data['bed_mesh']:
-                if data['bed_mesh']['profile_name'] != self.active_mesh:
-                    self.activate_mesh(data['bed_mesh']['profile_name'])
+            with contextlib.suppress(KeyError):
+                self.activate_mesh(data['bed_mesh']['profile_name'])
 
     def remove_create(self):
         if self.show_create is False:
@@ -224,7 +206,7 @@ class BedMeshPanel(ScreenPanel):
             self.content.remove(child)
 
         self.show_create = False
-        self.content.add(self.labels['main_box'])
+        self.content.add(self.labels['main_grid'])
         self.content.show()
 
     def remove_profile(self, profile):
@@ -238,22 +220,10 @@ class BedMeshPanel(ScreenPanel):
         pos = profiles.index(profile) + 1 if profile != "default" else 0
         self.labels['profiles'].remove_row(pos)
         del self.profiles[profile]
-
-    def send_load_mesh(self, widget, profile):
-        self._screen._ws.klippy.gcode_script(
-            KlippyGcodes.bed_mesh_load(profile)
-        )
-
-    def send_save_mesh(self, widget, profile):
-        self._screen._ws.klippy.gcode_script(
-            KlippyGcodes.bed_mesh_save(profile)
-        )
-
-    def send_remove_mesh(self, widget, profile):
-        self._screen._ws.klippy.gcode_script(
-            KlippyGcodes.bed_mesh_remove(profile)
-        )
-        self.remove_profile(profile)
+        if not self.profiles:
+            self.active_mesh = None
+            self.update_graph()
+            self.buttons['clear'].set_sensitive(False)
 
     def show_create_profile(self, widget):
 
@@ -268,9 +238,8 @@ class BedMeshPanel(ScreenPanel):
             self.labels['profile_name'].set_hexpand(True)
             self.labels['profile_name'].connect("activate", self.create_profile)
             self.labels['profile_name'].connect("focus-in-event", self._screen.show_keyboard)
-            self.labels['profile_name'].grab_focus_without_selecting()
 
-            save = self._gtk.ButtonImage("sd", _("Save"), "color3")
+            save = self._gtk.Button("complete", _("Save"), "color3")
             save.set_hexpand(False)
             save.connect("clicked", self.create_profile)
 
@@ -286,102 +255,37 @@ class BedMeshPanel(ScreenPanel):
             self.labels['create_profile'].pack_start(box, True, True, 5)
 
         self.content.add(self.labels['create_profile'])
-        self._screen.show_keyboard()
-<<<<<<< HEAD
-        self._screen.set_focused_entry(self.labels['profile_name'])
         self.labels['profile_name'].grab_focus_without_selecting()
-=======
         self.show_create = True
->>>>>>> a44f8f7b13d395855dbab1f61a46825484626c0f
 
-    def show_mesh(self, widget, profile):
+    def create_profile(self, widget):
+        name = self.labels['profile_name'].get_text()
+        if self.active_mesh is None:
+            self.calibrate_mesh(None)
 
-        bm = self._printer.get_config_section("bed_mesh %s" % profile)
-        if bm is False:
-            logging.info("Unable to load profile: %s" % profile)
-            return
+        self._screen._ws.klippy.gcode_script(f"BED_MESH_PROFILE SAVE={name}")
+        self.remove_create()
 
-        if profile == self.active_mesh:
-            abm = self._printer.get_stat("bed_mesh")
-            if abm is None:
-                logging.info("Unable to load active mesh: %s" % profile)
-                return
-            x_range = [int(abm['mesh_min'][0]), int(abm['mesh_max'][0])]
-            y_range = [int(abm['mesh_min'][1]), int(abm['mesh_max'][1])]
-            minz_mesh = min(min(abm['mesh_matrix']))
-            maxz_mesh = max(max(abm['mesh_matrix']))
-            # Do not use a very small zscale, because that could be misleading
-            if minz_mesh > -0.5:
-                minz_mesh = -0.5
-            if maxz_mesh < 0.5:
-                maxz_mesh = 0.5
-            z_range = [minz_mesh, maxz_mesh]
-            counts = [len(abm['mesh_matrix'][0]), len(abm['mesh_matrix'])]
-            deltas = [(x_range[1] - x_range[0]) / (counts[0] - 1), (y_range[1] - y_range[0]) / (counts[1] - 1)]
-            x = [(i * deltas[0]) + x_range[0] for i in range(counts[0])]
-            y = [(i * deltas[0]) + y_range[0] for i in range(counts[1])]
-            x, y = np.meshgrid(x, y)
-            z = np.asarray(abm['mesh_matrix'])
-        else:
-            x_range = [int(bm['min_x']), int(bm['max_x'])]
-            y_range = [int(bm['min_y']), int(bm['max_y'])]
-            z_range = [min(min(bm['points'])), max(max(bm['points']))]
-            deltas = [(x_range[1] - x_range[0]) / (int(bm['x_count']) - 1),
-                      (y_range[1] - y_range[0]) / (int(bm['y_count']) - 1)]
-            x = [(i * deltas[0]) + x_range[0] for i in range(bm['x_count'])]
-            y = [(i * deltas[0]) + y_range[0] for i in range(bm['y_count'])]
-            x, y = np.meshgrid(x, y)
-            z = np.asarray(bm['points'])
+    def calibrate_mesh(self, widget):
+        self._screen.show_popup_message(_("Calibrating"), level=1)
+        if self._printer.get_stat("toolhead", "homed_axes") != "xyz":
+            self._screen._ws.klippy.gcode_script(KlippyGcodes.HOME)
 
-        rc('axes', edgecolor="#e2e2e2", labelcolor="#e2e2e2")
-        rc(('xtick', 'ytick'), color="#e2e2e2")
-        fig = plt.figure(facecolor='#12121277')
-        ax = Axes3D(fig, azim=245, elev=23)
-        ax.set(title=profile, xlabel="X", ylabel="Y", facecolor='none')
-        ax.spines['bottom'].set_color("#e2e2e2")
-        fig.add_axes(ax)
-        surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm, vmin=-0.1, vmax=0.1)
+        self._screen._ws.klippy.gcode_script("BED_MESH_CALIBRATE")
 
-        chartbox = ax.get_position()
-        ax.set_position([chartbox.x0, chartbox.y0 + 0.1, chartbox.width * .92, chartbox.height])
+        # Load zcalibrate to do a manual mesh
+        if not self._printer.get_probe():
+            self.menu_item_clicked(widget, "refresh", {"name": _("Mesh calibrate"), "panel": "zcalibrate"})
 
-        ax.set_zlim(z_range[0], z_range[1])
-        ax.zaxis.set_major_locator(LinearLocator(5))
-        # A StrMethodFormatter is used automatically
-        ax.zaxis.set_major_formatter('{x:.02f}')
-        fig.colorbar(surf, shrink=0.7, aspect=5, pad=0.25)
+    def send_clear_mesh(self, widget):
+        self._screen._ws.klippy.gcode_script("BED_MESH_CLEAR")
 
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        box.set_hexpand(True)
-        box.set_vexpand(True)
+    def send_load_mesh(self, widget, profile):
+        self._screen._ws.klippy.gcode_script(KlippyGcodes.bed_mesh_load(profile))
 
-        title = Gtk.Label()
-        title.set_markup("<b>%s</b>" % profile)
-        title.set_hexpand(True)
-        title.set_halign(Gtk.Align.CENTER)
+    def send_save_mesh(self, widget, profile):
+        self._screen._ws.klippy.gcode_script(KlippyGcodes.bed_mesh_save(profile))
 
-        canvas_box = Gtk.Box()
-        canvas_box.set_hexpand(True)
-        canvas_box.set_vexpand(True)
-
-        box.add(title)
-        box.add(canvas_box)
-
-        buttons = [
-            {"name": _("Close"), "response": Gtk.ResponseType.CANCEL}
-        ]
-        self._gtk.Dialog(self._screen, buttons, box, self._close_dialog)
-
-        alloc = canvas_box.get_allocation()
-        canvas = FigureCanvas(fig)
-        canvas.set_size_request(alloc.width, self._screen.height / 3 * 2)
-        canvas_box.add(canvas)
-        canvas_box.show_all()
-        # Remove the "matplotlib-canvas" class which forces a white background.
-        # https://github.com/matplotlib/matplotlib/commit/3c832377fb4c4b32fcbdbc60fdfedb57296bc8c0
-        style_ctx = canvas.get_style_context()
-        for css_class in style_ctx.list_classes():
-            style_ctx.remove_class(css_class)
-
-    def _close_dialog(self, widget, response):
-        widget.destroy()
+    def send_remove_mesh(self, widget, profile):
+        self._screen._ws.klippy.gcode_script(KlippyGcodes.bed_mesh_remove(profile))
+        self.remove_profile(profile)

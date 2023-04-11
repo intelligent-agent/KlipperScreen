@@ -1,5 +1,4 @@
 import gi
-import logging
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Pango
@@ -12,12 +11,10 @@ def create_panel(*args):
 
 
 class SettingsPanel(ScreenPanel):
-    def initialize(self, panel_name):
-
-        self.settings = {}
+    def __init__(self, screen, title):
+        super().__init__(screen, title)
+        self.printers = self.settings = {}
         self.menu = ['settings_menu']
-        self.labels['add_printer_button'] = self._gtk.Button(_("Add Printer"), "color1")
-
         options = self._config.get_configurable_options().copy()
         options.append({"printers": {
             "name": _("Printer Connections"),
@@ -35,13 +32,11 @@ class SettingsPanel(ScreenPanel):
         self.labels['printers_menu'] = self._gtk.ScrolledWindow()
         self.labels['printers'] = Gtk.Grid()
         self.labels['printers_menu'].add(self.labels['printers'])
-        self.printers = {}
         for printer in self._config.get_printers():
-            logging.debug("Printer: %s" % printer)
             pname = list(printer)[0]
             self.printers[pname] = {
                 "name": pname,
-                "section": "printer %s" % pname,
+                "section": f"printer {pname}",
                 "type": "printer",
                 "moonraker_host": printer[pname]['moonraker_host'],
                 "moonraker_port": printer[pname]['moonraker_port'],
@@ -63,12 +58,8 @@ class SettingsPanel(ScreenPanel):
     def add_option(self, boxname, opt_array, opt_name, option):
         if option['type'] is None:
             return
-
-        frame = Gtk.Frame()
-        frame.get_style_context().add_class("frame-item")
-
         name = Gtk.Label()
-        name.set_markup("<big><b>%s</b></big>" % (option['name']))
+        name.set_markup(f"<big><b>{option['name']}</b></big>")
         name.set_hexpand(True)
         name.set_vexpand(True)
         name.set_halign(Gtk.Align.START)
@@ -80,70 +71,55 @@ class SettingsPanel(ScreenPanel):
         labels.add(name)
 
         dev = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        dev.get_style_context().add_class("frame-item")
         dev.set_hexpand(True)
         dev.set_vexpand(False)
         dev.set_valign(Gtk.Align.CENTER)
 
         dev.add(labels)
         if option['type'] == "binary":
-            box = Gtk.Box()
-            box.set_vexpand(False)
             switch = Gtk.Switch()
-            switch.set_hexpand(False)
-            switch.set_vexpand(False)
             switch.set_active(self._config.get_config().getboolean(option['section'], opt_name))
             switch.connect("notify::active", self.switch_config_option, option['section'], opt_name,
                            option['callback'] if "callback" in option else None)
-            switch.set_property("width-request", round(self._gtk.get_font_size() * 7))
-            switch.set_property("height-request", round(self._gtk.get_font_size() * 3.5))
-            box.add(switch)
-            dev.add(box)
+            dev.add(switch)
         elif option['type'] == "dropdown":
             dropdown = Gtk.ComboBoxText()
-            i = 0
-            for opt in option['options']:
+            for i, opt in enumerate(option['options']):
                 dropdown.append(opt['value'], opt['name'])
                 if opt['value'] == self._config.get_config()[option['section']].get(opt_name, option['value']):
                     dropdown.set_active(i)
-                i += 1
             dropdown.connect("changed", self.on_dropdown_change, option['section'], opt_name,
                              option['callback'] if "callback" in option else None)
             dropdown.set_entry_text_column(0)
             dev.add(dropdown)
         elif option['type'] == "scale":
             dev.set_orientation(Gtk.Orientation.VERTICAL)
-            val = int(self._config.get_config().get(option['section'], opt_name, fallback=option['value']))
-            adj = Gtk.Adjustment(val, option['range'][0], option['range'][1], option['step'], option['step'] * 5)
-            scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
+            scale = Gtk.Scale.new_with_range(orientation=Gtk.Orientation.HORIZONTAL,
+                                             min=option['range'][0], max=option['range'][1], step=option['step'])
             scale.set_hexpand(True)
+            scale.set_value(int(self._config.get_config().get(option['section'], opt_name, fallback=option['value'])))
             scale.set_digits(0)
             scale.connect("button-release-event", self.scale_moved, option['section'], opt_name)
             dev.add(scale)
         elif option['type'] == "printer":
-            logging.debug("Option: %s" % option)
             box = Gtk.Box()
             box.set_vexpand(False)
-            label = Gtk.Label()
-            url = "%s:%s" % (option['moonraker_host'], option['moonraker_port'])
-            label.set_markup("<big>%s</big>\n%s" % (option['name'], url))
+            label = Gtk.Label(f"{option['moonraker_host']}:{option['moonraker_port']}")
             box.add(label)
             dev.add(box)
         elif option['type'] == "menu":
-            open = self._gtk.ButtonImage("settings", None, "color3")
-            open.connect("clicked", self.load_menu, option['menu'])
-            open.set_hexpand(False)
-            open.set_halign(Gtk.Align.END)
-            dev.add(open)
-
-        frame.add(dev)
-        frame.show_all()
+            open_menu = self._gtk.Button("settings", style="color3")
+            open_menu.connect("clicked", self.load_menu, option['menu'], option['name'])
+            open_menu.set_hexpand(False)
+            open_menu.set_halign(Gtk.Align.END)
+            dev.add(open_menu)
 
         opt_array[opt_name] = {
             "name": option['name'],
-            "row": frame
+            "row": dev
         }
 
-        opts = sorted(opt_array)
         opts = sorted(list(opt_array), key=lambda x: opt_array[x]['name'])
         pos = opts.index(opt_name)
 

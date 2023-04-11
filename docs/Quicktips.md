@@ -30,52 +30,36 @@ fan1 will show in the interface, but _fan2 will be hidden.
 
 
 ## Thumbnails
-KlipperScreen can display thumbnails in the file browser and as previews in the print status.
 
-
-![Job Status](img/panels/job_status.png)
-
-
-* [PrusaSlicer](#prusaslicer)
-* [SuperSlicer](#superslicer)
-* [Cura](#cura)
-* [ideaMaker](#ideamaker)
-
-### PrusaSlicer
-In “Expert” mode PrusaSlicer has an option in the “Printer Settings” tab to activate previews.
-Under General / Firmware.
-
-
-![PrusaSlicer](img/quicktips/PrusaSlicer-thumbnails.png)
-
-
-### SuperSlicer
-In “Expert” mode SuperSlicer has some very convenient options in the “Printer Settings” tab to activate and customize the previews.
-
-
-![SuperSlicer](img/quicktips/SuperSlicer-thumbnails.png)
-
-
-### Cura
-The Cura plugin [“Cura2Moonraker”](https://github.com/emtrax-ltd/Cura2MoonrakerPlugin) is required for this.
-
-
-![Cura](img/quicktips/Cura-thumbnails.png)
-
-
-### ideaMaker
-To enable thumbnails, open the Advanced tab in the printer settings, enable the GCode Thumbnails for Octoprint and Mainsail option and enter your prefered square format image size in the Resolution fields (e.g. 400 X 400). It’s necessary that the thumbnail width and height resolution is equal.
-
-
-![ideaMaker](img/quicktips/IdeaMaker-thumbnails.png)
+Moved to [Thumbnails](Thumbnails.md)
 
 
 ## Layer Progress
+
+Accurate layer progress as a message below the status:
+
 PrusaSlicer/SuperSlicer > Printer Settings > Custom Gcode > After layer change Gcode
 
 `M117 Layer {layer_num+1}/[total_layer_count] : {filament_settings_id[0]}`
 
 ![Layer_progress](img/quicktips/PS_SS_Layer_progress.png)
+
+Accurate layer progress in the secondary screen of the printing panel:
+
+The layer number in the secondary screen of the printing panelis calculated according to object height and provided layer height.
+It will be innacurate when using variable layer height, but can be fixed by providing klipper with the correct data.
+
+![speed_screenshot](img/panels/job_status_speed.png)
+
+PrusaSlicer/SuperSlicer:
+
+Printer Settings > Custom Gcode > Start Gcode
+
+`SET_PRINT_STATS_INFO TOTAL_LAYER=[total_layer_count]`
+
+Printer Settings > Custom Gcode > After layer change Gcode
+
+`SET_PRINT_STATS_INFO CURRENT_LAYER={layer_num + 1}`
 
 ## Supported Macros
 [Macros](macros.md)
